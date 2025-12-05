@@ -157,10 +157,7 @@ static ge::graphStatus TilingFunc(gert::TilingContext *context) {
       if (tileDataNum == 0) tileDataNum = align32;
     }
   }
-  if (overflow)
-    return ge::GRAPH_FAILED;
-  if (total_output_elements > ((1ULL << 40) - 1))
-    return ge::GRAPH_FAILED;
+  
   for (int i = 0; i < dimOffset; i++)
     shapefull[i] = 1;
 
@@ -178,8 +175,7 @@ static ge::graphStatus TilingFunc(gert::TilingContext *context) {
     if (total_output_elements <= 8192ULL) {
       block_dim_64 = 1ULL;
     }
-    if (max_core_data > (1ULL << 40) - 1)
-      return ge::GRAPH_FAILED;
+  
     uint32_t CoreDataNum = static_cast<uint32_t>(
         max_core_data > UINT32_MAX ? UINT32_MAX : max_core_data);
     uint32_t TileNum = (CoreDataNum + tileDataNum - 1U) / tileDataNum;
@@ -234,15 +230,12 @@ static ge::graphStatus InferShape(gert::InferShapeContext *context) {
   int64_t input_dims = input_shape->GetDimNum();
   int64_t other_dims = other_shape->GetDimNum();
   int64_t max_dims = (input_dims > other_dims) ? input_dims : other_dims;
-  if (max_dims > 8) {
-    return ge::GRAPH_FAILED;
-  }
+ 
   std::vector<int64_t> result_dims(max_dims, 1);
   for (int64_t i = 0; i < max_dims; i++) {
     int64_t a = (i < input_dims) ? input_shape->GetDim(input_dims - 1 - i) : 1;
     int64_t b = (i < other_dims) ? other_shape->GetDim(other_dims - 1 - i) : 1;
-    if (a < 0 || b < 0)
-      return ge::GRAPH_PARAM_INVALID;
+   
     int64_t c;
     if (a == 1)
       c = b;
@@ -250,8 +243,7 @@ static ge::graphStatus InferShape(gert::InferShapeContext *context) {
       c = a;
     else if (a == b)
       c = a;
-    else
-      return ge::GRAPH_PARAM_INVALID;
+    
     result_dims[max_dims - 1 - i] = c;
   }
   out_shape->SetDimNum(max_dims);
