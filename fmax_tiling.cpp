@@ -26,9 +26,7 @@ static ge::graphStatus TilingFunc(gert::TilingContext *context) {
   uint32_t totalBytesPerElement = 3 * inputBytes + 3 * otherBytes +
                                   3 * outputBytes +
                                   2 * 4U;
-  if (totalBytesPerElement == 0) {
-    return ge::GRAPH_FAILED;
-  }
+  
   uint32_t tileDataNumMax = ubSize / totalBytesPerElement;
 
   auto gcd_u32 = [](uint32_t a, uint32_t b) -> uint32_t {
@@ -105,9 +103,7 @@ static ge::graphStatus TilingFunc(gert::TilingContext *context) {
   int64_t input_dims = context->GetInputShape(0)->GetStorageShape().GetDimNum();
   int64_t other_dims = context->GetInputShape(1)->GetStorageShape().GetDimNum();
   int64_t numshapes = (input_dims > other_dims) ? input_dims : other_dims;
-  if (numshapes > 8) {
-    return ge::GRAPH_FAILED;
-  }
+  
 
   int64_t shape[maxDimNum * inputVarNum], shapefull[maxDimNum];
   memset(shape, 0, sizeof(shape));
@@ -134,9 +130,7 @@ static ge::graphStatus TilingFunc(gert::TilingContext *context) {
   for (int k = 0; k < numshapes; ++k) {
     int64_t a = input_shape_arr[dimOffset + k];
     int64_t b = other_shape_arr[dimOffset + k];
-    if (a < 0 || b < 0 || (a != 1 && b != 1 && a != b)) {
-      return ge::GRAPH_FAILED;
-    }
+    
     int64_t c = (a == 1) ? b : (b == 1 ? a : a);
     shapefull[dimOffset + k] = c;
     if (c == 0) {
